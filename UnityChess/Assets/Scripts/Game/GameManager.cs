@@ -28,10 +28,24 @@ public class GameManager : MonoBehaviourSingleton<GameManager> {
 		}
 	}
 
-	/// <summary>
-	/// Gets the side (White/Black) whose turn it is to move.
-	/// </summary>
-	public Side SideToMove {
+    public void CheckGameEnd()
+    {
+        if (CurrentBoard.IsPlayerCheckmated(SideToMove))
+        {
+            Debug.Log($"{SideToMove} is checkmated! Game over.");
+            GameEndedEvent?.Invoke();
+        }
+        else if (CurrentBoard.IsPlayerStalemated(SideToMove))
+        {
+            Debug.Log($"{SideToMove} is stalemated! Game is a draw.");
+            GameEndedEvent?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// Gets the side (White/Black) whose turn it is to move.
+    /// </summary>
+    public Side SideToMove {
 		get {
 			// Retrieves the current game conditions and returns the active side.
 			game.ConditionsTimeline.TryGetCurrent(out GameConditions currentConditions);
@@ -194,8 +208,9 @@ public class GameManager : MonoBehaviourSingleton<GameManager> {
 
 		// Signal that a move has been executed.
 		MoveExecutedEvent?.Invoke();
+        CheckGameEnd();
 
-		return true;
+        return true;
 	}
 	
 	/// <summary>
